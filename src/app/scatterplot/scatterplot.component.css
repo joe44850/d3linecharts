@@ -1,0 +1,36 @@
+.line-chart{
+    width:1050px;
+    height:500px;
+    border:1px solid #ddd;
+}
+
+.axis--x path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.gridX line {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;   
+}
+
+.gridX path {
+  stroke-width: 0;  
+}
+
+.gridY{
+    margin-top:50px;
+}
+.gridY line {
+  stroke: #ddd;
+  stroke-opacity: 0.7;   
+}
+
+.gridY path {
+  stroke-width: 0;  
+}
