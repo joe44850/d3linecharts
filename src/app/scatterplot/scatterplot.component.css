@@ -1,7 +1,5 @@
 .line-chart{
-    width:1050px;
-    height:500px;
-    border:1px solid #ddd;
+    width:1050px;    
 }
 
 .axis--x path {
@@ -33,4 +31,11 @@
 
 .gridY path {
   stroke-width: 0;  
+}
+
+.selectMulti{
+    font-size:.9em;
+    height:4em;
+    border:1px solid #ccc;
+    border-radius: 2px;
 }

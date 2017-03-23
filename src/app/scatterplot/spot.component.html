@@ -1,0 +1,22 @@
+<div class="div-centered">
+    <scatterplot
+        [width]="1000"
+        [height]="400"
+        [yLabel]="yLabel"
+        [yMin]=yMinimum
+        [yMax]=yMaximum
+        [xLabel]="xLabel"
+        [xMin]="xMinimum"
+        [xMax]="xMaximum"
+        [colorScheme] = "['#8B0000', '#3399FF', '#FFA500', '#BBBBBB', '#3399FF', '#990033', '#006600', '#0066CC', '#FFCC33']"        
+    ></scatterplot>
+
+    <div>
+        Y label: <input type="text" class="input-medium" [(ngModel)]="yLabel">
+        YAxis Range: <input type="text" [(ngModel)]="yMinimum" class="input-narrow"> to <input type="text" [(ngModel)]="yMaximum" class="input-narrow">
+
+        X label: <input type="text" class="input-medium" [(ngModel)]="xLabel">
+        XAxis Range: <input type="text" [(ngModel)]="xMinimum" class="input-narrow"> to <input type="text" [(ngModel)]="xMaximum" class="input-narrow">
+    </div>
+</div>
+

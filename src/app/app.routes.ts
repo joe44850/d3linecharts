@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ScatterplotComponent } from './scatterplot/scatterplot.component';
+import { SpotComponent } from './scatterplot/spot.component';
 
 export const routes: Routes = [
-    {path: '', component: ScatterplotComponent},
-    {path: 'scatterplot', component: ScatterplotComponent }
+    {path: '', component:SpotComponent},
+    {path: 'spot', component: SpotComponent }
 ];
 
 @NgModule({
@@ -12,4 +12,4 @@ export const routes: Routes = [
   exports: [RouterModule],
   providers: []
 })
-export class ChartRouting {}
+export class ChartRouting{};

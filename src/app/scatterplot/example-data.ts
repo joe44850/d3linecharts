@@ -85,51 +85,51 @@ export let exampleData = [{
 }, {
     "avgScore": "1.7",
     "year": "1.1",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "1.8",
     "year": "1.2",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "1.9",
     "year": "1.3",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "2",
     "year": "2.1",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "2.3",
     "year": "2.2",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "2.35",
     "year": "2.3",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "2.4",
     "year": "3.1",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "2.55",
     "year": "3.2",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "2.7",
     "year": "3.3",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "2.86",
     "year": "4.1",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "2.88",
     "year": "4.2",
-    "student": "Average"
+    "student": " Average"
 }, {
     "avgScore": "3.0",
     "year": "4.3",
-    "student": "Average"
+    "student": " Average"
 },{
     "avgScore": "1.7",
     "year": "1.1",
@@ -214,5 +214,90 @@ export let exampleData = [{
       3.7,3.9,3.9,3.6,4  
     ],
     "student": "Stephen Blake"
+},
+{
+    "avgScore": "1.7",
+    "year": "1.1",
+    "scores": [
+      2.9,2.8  
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "1.8",
+    "year": "1.2",
+    "scores": [
+        2.95,3.6,3.7
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "2.1",
+    "year": "1.3",
+    "scores": [
+       3.8, 3.8, 2.5
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "2.3",
+    "year": "2.1",
+    "scores": [
+        3.4, 3.7, 3.8, 4.0, 4
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "2.35",
+    "year": "2.2",
+    "scores": [
+        3.6, 3.7, 3.8, 3.7
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "2.8",
+    "year": "2.3",
+    "scores": [
+        3.9, 3.9, 4.0, 4.0
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "3.3",
+    "year": "3.1",
+    "scores": [
+        4.0, 4.0, 4.0, 3.99
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "3.4",
+    "year": "3.2",
+    "scores": [
+        3.8, 4.0, 3.9
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "3.75",
+    "year": "3.3",
+    "scores": [
+        3.2, 2.9, 3.7, 3.9
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "3.75",
+    "year": "4.1",
+    "scores": [
+        4.0, 3.95, 4.0, 3.8
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "3.9",
+    "year": "4.2",
+    "scores": [
+        3.7, 3.6, 3.9, 4.0
+    ],
+    "student": "Angela Harris"
+}, {
+    "avgScore": "3.8",
+    "year": "4.3",
+    "scores": [
+      4.5, 4.0, 4.0, 4.1 
+    ],
+    "student": "Angela Harris"
 },
 ];
