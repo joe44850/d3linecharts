@@ -23,8 +23,9 @@ export class ScatterplotComponent implements OnInit, OnChanges {
   @Input() public yLabel: string;
   @Input() public colorScheme: any;
   @Input() public showLegend: boolean;
+  @Input() public dataKey: string;
 
-  private margin: any = {top: 30, right: 20, bottom: 28, left: 30};
+  private margin: any = {top: 20, right: 10, bottom: 20, left: 20};
   private chart: any;
   private xScale: any;
   private yScale: any;
@@ -41,16 +42,16 @@ export class ScatterplotComponent implements OnInit, OnChanges {
   private dataGroup: any;
   private gY:any;
   private gX: any;
-  public studentNames: any;
-  private selectedStudents: any;
-  private selectedStudentsData: any;
+  public itemIds: any;
+  private selectedItems: any;
+  private selectedItemData: any;
   private lines: any = [];
   private dotSelect: any = [];  
   private color: any;
   private assignedColors: any = []; 
 
   public gridVisible: boolean;
-  public selectedStudentIds: any = ["Average"];
+  public selectedIds: any = ["Average"];
 
   constructor() { }
 
@@ -67,8 +68,8 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     this.colorScheme = this.colorScheme || ["#666600", "#999900", "#996800", "#3399FF", "#990033", "#006600", "#0066CC", "#FFCC33" ];
     this.createChart();
     this.gridVisible = false; 
-    this.setStudentNames();   
-    this.updateChart();
+    this.setDataKeys();   
+    this.updateChart();    
   }
 
   ngOnChanges(changes: SimpleChanges){
@@ -91,39 +92,47 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     if(this.svgYLabel){
       this.svgYLabel.remove();
     }
-    let x = (this.width/2).toFixed();
-    let y = this.height-20;
+    let xx = (this.width/2).toFixed();
+    let xy = this.height - 10;
+    let yx = 0;
+    let yy = (this.height/2).toFixed();
     let self = this;
     if(this.xLabel){
        this.svgXLabel = this.svg.append("text")
-      .attr("x", x)
-      .attr("y", y)  
+      .attr("x", xx)
+      .attr("y", xy)  
       .style("text-anchor", "middle")    
       .text(self.xLabel);
     }
-   
+    if(this.yLabel){
+      this.svgYLabel = this.svg.append("text")
+      .attr("x", yx)
+      .attr("y", yy)
+      .style("text-anchor", "middle")
+      .text(self.yLabel);
+    }
   }
 
   createChart(){
     let self = this;
     let element = this.chartContainer.nativeElement;  
-    this.svg = d3.select(element).append('svg')
-      .attr('width', self.width)
-      .attr('height', self.height);
+    this.svg = d3.select(element).append("svg")
+      .attr("width", self.width + self.margin.left + self.margin.right)
+      .attr("height", self.height + self.margin.top + self.margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")");
     this.createAxis();            
   } 
 
   createAxis(){
     let self = this;
-    this.xScale = d3.scaleLinear().range([self.margin.left, self.width - self.margin.right]).domain([self.xMin, self.xMax]);
-    this.yScale = d3.scaleLinear().range([self.height - self.margin.top, self.margin.bottom]).domain([self.yMin, self.yMax]);
+    this.xScale = d3.scaleLinear().range([self.margin.left, self.width - self.margin.right - self.margin.right]).domain([self.xMin, self.xMax]);
+    this.yScale = d3.scaleLinear().range([self.height - self.margin.top - self.margin.bottom, 0]).domain([self.yMin, self.yMax]);
     //chart plot area
     let xAxis = d3.axisBottom(this.xScale);
     let yAxis = d3.axisLeft(this.yScale);
     this.xAxis = xAxis;
-    this.yAxis = yAxis;
-    this.x = d3.scaleTime().range([0, self.width]);
-    this.y = d3.scaleLinear().range([self.height, 0]);
+    this.yAxis = yAxis;    
     
     if(this.svgXAxis){
       this.svgXAxis.remove();
@@ -133,7 +142,7 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     }
 
     this.svgXAxis = self.svg.append('g')      
-      .attr("transform", "translate(0," + (self.height - self.margin.bottom) + ")")
+      .attr("transform", "translate(0," + (self.height - self.margin.bottom - self.margin.top) + ")")
       .call(xAxis);
 
     this.svgYAxis = self.svg.append('g')
@@ -144,28 +153,28 @@ export class ScatterplotComponent implements OnInit, OnChanges {
   removeDataPoints(){
     if(!this.lines){return;} 
     let i = 0;       
-    for(var studentId in this.lines){
-      var inArray = this.selectedStudentIds.indexOf(studentId);
+    for(var keyId in this.lines){
+      var inArray = this.selectedIds.indexOf(keyId);
       if(inArray == -1){        
-        this.lines[studentId].remove(); 
-        this.removeDots(studentId);       
-        delete this.lines[studentId];
+        this.lines[keyId].remove(); 
+        this.removeDots(keyId);       
+        delete this.lines[keyId];
       }
       else{
-        console.log(`Index of ${studentId}: `+this.lines.indexOf(studentId));
+        //console.log(`Index of ${studentId}: `+this.lines.indexOf(studentId));
       }
       i++;
     }
   } 
 
-  removeDots(studentId){
-    let sel = this.dotSelect[studentId];    
+  removeDots(itemId){
+    let sel = this.dotSelect[itemId];    
     d3.selectAll("circle").remove();
   }
 
   updateChart(){
     this.removeDataPoints();     
-    if(!this.selectedStudentsData){ return; }    
+    if(!this.selectedItemData){ return; }    
     this.updateLineChart();               
   }  
 
@@ -174,9 +183,9 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     return new Promise((resolve)=>{
       this.dataGroup = d3.nest()
         .key(function(d){
-          return d["student"];
+          return d[self.dataKey];
         })
-    .entries(this.selectedStudentsData);    
+    .entries(this.selectedItemData);    
        
     var lineGen = d3.line()
       .x(function(d) {
@@ -231,10 +240,10 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     let self = this;
     if(!this.lines){return;} 
            
-    for(var studentId in this.lines){              
-        this.lines[studentId].remove(); 
-        this.removeDots(studentId);       
-        delete this.lines[studentId];    
+    for(var itemId in this.lines){              
+        this.lines[itemId].remove(); 
+        this.removeDots(itemId);       
+        delete this.lines[itemId];    
     } 
     this.assignedColors = [];
     this.updateChart();   
@@ -247,7 +256,6 @@ export class ScatterplotComponent implements OnInit, OnChanges {
       let position = Object.keys(this.assignedColors).map(function(e){
         return e.indexOf(color);
       });
-      console.log(position);
     }
     for(let key in this.assignedColors){
       q++;
@@ -296,11 +304,11 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     
   } 
 
-  setDataScatter(studentData){      
+  setDataScatter(itemData){      
     let retVal = [];
     let q = 0;
-    for(let key in studentData.values){
-      let item =  (studentData.values[key]);
+    for(let key in itemData.values){
+      let item =  (itemData.values[key]);
       let scores = item.scores;      
       let year = item.year;      
       if(!scores){ continue;}
@@ -310,21 +318,21 @@ export class ScatterplotComponent implements OnInit, OnChanges {
         q++;
       }     
     }
-    console.log(retVal);
     return retVal;
   }
 
-  updateSelectedStudents(studentIds){
-    this.selectedStudentIds = studentIds;    
-    let studentData = []; 
-    this.selectedStudentsData = null;  
+  updateSelectedData(keyIds){
+    let self = this;
+    this.selectedIds = keyIds;    
+    let itemData = []; 
+    this.selectedItemData = null;  
     return new Promise((resolve)=>{
       this.data.forEach((item, index)=>{
-        if(studentIds.indexOf(item.student) != -1){          
-          studentData.push(item);
+        if(keyIds.indexOf(item[self.dataKey]) != -1){          
+          itemData.push(item);
         }
       });      
-      this.selectedStudentsData = studentData;      
+      this.selectedItemData = itemData;      
       return resolve();
     });   
   }
@@ -338,8 +346,8 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     if(this.gridVisible){
       if(this.gY){ this.gY.remove();}
       if(this.gX){ this.gX.remove(); }
-      let width = this.width;
-      let height = this.height - this.margin['bottom'];
+      let width = this.width - this.margin.left - (this.margin.right*2);
+      let height = this.height - this.margin.top - this.margin.bottom;
       let numberOfTicks = 5;        
       var yAxis = d3.axisLeft(yScale).tickSize(-width).tickPadding(10).tickFormat(d3.timeFormat(""));
       var xAxis = d3.axisBottom(xScale).tickSize(-height).tickPadding(10).tickFormat(d3.timeFormat(""));
@@ -356,15 +364,16 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     }
   } 
 
-  setStudentNames(){
+  setDataKeys(){
+    let self = this;
     let data = this.data;
-    let studentNames = [];
+    let itemKeys = [];
     data.forEach((item, i)=>{
-      if(studentNames.indexOf(item.student) === -1){
-        studentNames.push(item.student);
+      if(itemKeys.indexOf(item[self.dataKey]) === -1){
+        itemKeys.push(item[self.dataKey]);
       }
     });
-    this.studentNames = studentNames.sort();    
+    this.itemIds = itemKeys.sort();    
   }
 }
 

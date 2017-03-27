@@ -3,7 +3,7 @@
   <input type="checkbox" [(ngModel)]="gridVisible" (ngModelChange)="updateGrid()" ><label>Grid</label>
 </div>
 <div *ngIf="data">
-  <select multiple rows=5 [(ngModel)]="selectedStudentNames" (ngModelChange)="updateSelectedStudents($event).then(updateChart());" class="selectMulti">
-    <option *ngFor="let student of studentNames" [value]="student">{{student}}</option>
+  <select multiple rows=5 [(ngModel)]="selectedItems" (ngModelChange)="updateSelectedData($event).then(updateChart());" class="selectMulti">
+    <option *ngFor="let itemId of itemIds" [value]="itemId">{{itemId}}</option>
   </select>
 </div>

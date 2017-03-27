@@ -13,6 +13,7 @@ export class SpotComponent {
 @Input() public yMaximum: number = 5;
 @Input() public xLabel: string;
 @Input() public yLabel: string;
+@Input() public dataKey = "studentName";
 
     constructor(){
         

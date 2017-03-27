@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^2.4.0",
     "@angular/platform-browser-dynamic": "^2.4.0",
     "@angular/router": "^3.4.0",
+    "@types/d3-selection": "^1.0.12",
     "core-js": "^2.4.1",
     "rxjs": "^5.1.0",
     "zone.js": "^0.7.6"
@@ -43,5 +44,17 @@
     "ts-node": "~2.0.0",
     "tslint": "~4.4.2",
     "typescript": "~2.0.0"
-  }
+  },
+  "description": "This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0-beta.32.3.",
+  "main": "karma.conf.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joe44850/d3linecharts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/joe44850/d3linecharts/issues"
+  },
+  "homepage": "https://github.com/joe44850/d3linecharts#readme"
 }
