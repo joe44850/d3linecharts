@@ -1,6 +1,6 @@
 <div #chart class="line-chart"></div>
 <div>
-  <input type="checkbox" [(ngModel)]="gridVisible" (ngModelChange)="updateGrid()" ><label>Grid</label>
+  <input type="checkbox" [(ngModel)]="gridVisible" (ngModelChange)="showHideGrid()" ><label>Grid</label>
 </div>
 <div *ngIf="data">
   <select multiple rows=5 [(ngModel)]="selectedItems" (ngModelChange)="updateSelectedData($event).then(updateChart());" class="selectMulti">

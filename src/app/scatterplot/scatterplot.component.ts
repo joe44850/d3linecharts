@@ -24,6 +24,7 @@ export class ScatterplotComponent implements OnInit, OnChanges {
   @Input() public colorScheme: any;
   @Input() public showLegend: boolean;
   @Input() public dataKey: string;
+  @Input() public fillChart: boolean;
 
   private margin: any = {top: 20, right: 10, bottom: 20, left: 20};
   private chart: any;
@@ -48,9 +49,10 @@ export class ScatterplotComponent implements OnInit, OnChanges {
   private lines: any = [];
   private dotSelect: any = [];  
   private color: any;
-  private assignedColors: any = []; 
+  private assignedColors: any = [];
+  private filledAreas: any = []; 
 
-  public gridVisible: boolean;
+  public gridVisible: boolean = true;
   public selectedIds: any = ["Average"];
 
   constructor() { }
@@ -66,24 +68,30 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     this.yMax = this.yMax || 100;
     this.showLegend = this.showLegend || true;
     this.colorScheme = this.colorScheme || ["#666600", "#999900", "#996800", "#3399FF", "#990033", "#006600", "#0066CC", "#FFCC33" ];
-    this.createChart();
-    this.gridVisible = false; 
+    this.createChart();    
     this.setDataKeys();   
-    this.updateChart();    
+    this.updateChart(); 
+    this.updateGrid();      
   }
 
   ngOnChanges(changes: SimpleChanges){
-    for(let key in changes){      
+    for(let key in changes){ 
+      console.log(key);     
       if((key == "xMax" || key == "xMin" || key == "yMin" || key == "yMax") && this.svgXAxis && this.svgYAxis){
         this.createAxis();
-        this.redrawLines();
         this.updateGrid();
+        this.redrawLines();
+        this.removeFills();
+        this.addFill();        
       }
       else if(key == "xLabel" || key == "yLabel"){        
         this.updateLabels();
-      }
+      } 
+      else if(key == "fillChart"){
+        this.addFill();
+      }    
     }
-  }
+  }  
 
   updateLabels(){
     if(this.svgXLabel){
@@ -105,11 +113,12 @@ export class ScatterplotComponent implements OnInit, OnChanges {
       .text(self.xLabel);
     }
     if(this.yLabel){
-      this.svgYLabel = this.svg.append("text")
-      .attr("x", yx)
-      .attr("y", yy)
-      .style("text-anchor", "middle")
-      .text(self.yLabel);
+      this.svgYLabel = this.svg.append("text")      
+      .style("text-anchor", "middle")      
+      .text(self.yLabel)
+      .attr("x", yy)
+      .attr("y", 17)
+      .attr("class", "yLabelText");
     }
   }
 
@@ -217,7 +226,7 @@ export class ScatterplotComponent implements OnInit, OnChanges {
         .attr("stroke-dashoffset", function(d){ return this.getTotalLength() }); 
         line.transition(t)
           .attr("stroke-dashoffset", 0);
-        line.id = d.key;
+        line.id = d.key;        
         _lines[line.id] = line; 
         this.lines[line.id] = line;             
         this.updateScatterPlots(d);          
@@ -229,6 +238,60 @@ export class ScatterplotComponent implements OnInit, OnChanges {
       return resolve();
     });
   } 
+
+  addFill(){
+    if(this.fillChart){      
+      var self = this;
+      if(!this.dataGroup){ return; }
+      var areaFunction = d3.area()      
+        .x(function(d) { return self.xScale(d["year"]); })
+        .y0(self.height)
+        .y1(function(d) { return self.yScale(self.getAverageScore(d)); });          
+
+      this.dataGroup.forEach(function(d, i) { 
+        let inArray = (d.key in self.filledAreas);           
+        if(!inArray){        
+          let color = self.assignedColors[d.key];
+          let gradientId = "linearGradient"+i;
+          var areaGradient =self.svg.append("defs")
+          .append("linearGradient")
+          .attr("id",`${gradientId}`)
+          .attr("x1", "0%").attr("y1", "0%")
+          .attr("x2", "0%").attr("y2", "100%");        
+          areaGradient.append("stop")         
+          .attr("offset", "0%")          
+          .attr("stop-color", `${color}`)
+          .attr("stop-opacity", 0.6);
+          areaGradient.append("stop")          
+          .attr("offset", "100%")          
+          .attr("stop-color", "white")
+          .attr("stop-opacity", 0);        
+          self.svg.append("path")
+          .style("fill", `url(#${gradientId})`)
+          .attr("d", areaFunction(d.values));          
+          self.filledAreas[d.key] = gradientId;
+        }
+      });      
+    } 
+    else{
+      this.removeFills();
+    }   
+  }
+
+  removeFills(){
+    let i = 0;
+    try{
+      for(let key in this.filledAreas){
+        let item = this.filledAreas[key];
+        this.svg.select(`#${item}`).selectAll("*").remove();        
+      }
+      this.filledAreas = [];
+      
+    }  
+    catch(e){
+      console.log(e);
+    }    
+  }
 
   updateLegend(){
     if(this.showLegend){
@@ -342,27 +405,30 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     let xScale = this.xScale;
     let yScale = this.yScale; 
     let y = this.y;
-    let x = this.x;  
-    if(this.gridVisible){
-      if(this.gY){ this.gY.remove();}
-      if(this.gX){ this.gX.remove(); }
-      let width = this.width - this.margin.left - (this.margin.right*2);
-      let height = this.height - this.margin.top - this.margin.bottom;
-      let numberOfTicks = 5;        
-      var yAxis = d3.axisLeft(yScale).tickSize(-width).tickPadding(10).tickFormat(d3.timeFormat(""));
-      var xAxis = d3.axisBottom(xScale).tickSize(-height).tickPadding(10).tickFormat(d3.timeFormat(""));
-      this.gY = svg.append("g")
-                  .attr("class", "gridX")                  
-                  .attr("transform", `translate(${this.margin['left']},0)`).call(yAxis); 
-      this.gX = svg.append("g")
-                  .attr("class", "gridY")                  
-                  .attr("transform", `translate(0, ${height})`).call(xAxis);      
-    }
-    else{
-      this.gY.attr("display", "none");
-      this.gX.attr("display", "none");
-    }
+    let x = this.x;      
+    
+    if(this.gY){ this.gY.remove();}
+    if(this.gX){ this.gX.remove(); }
+    let width = this.width - this.margin.left - (this.margin.right*2);
+    let height = this.height - this.margin.top - this.margin.bottom;
+    let numberOfTicks = 5;        
+    var yAxis = d3.axisLeft(yScale).tickSize(-width).tickPadding(10).tickFormat(d3.timeFormat(""));
+    var xAxis = d3.axisBottom(xScale).tickSize(-height).tickPadding(10).tickFormat(d3.timeFormat(""));
+    this.gY = svg.append("g")
+                .attr("class", "gridX")                  
+                .attr("transform", `translate(${this.margin['left']},0)`).call(yAxis); 
+    this.gX = svg.append("g")
+                .attr("class", "gridY")                  
+                .attr("transform", `translate(0, ${height})`).call(xAxis);    
   } 
+
+  showHideGrid(){
+    let gridVisibleCss = (this.gridVisible) ? "gridVisible" : "gridHidden";
+    this.gY.selectAll("g")
+      .attr("class", gridVisibleCss);
+    this.gX.selectAll("g")
+      .attr("class", gridVisibleCss);
+  }
 
   setDataKeys(){
     let self = this;

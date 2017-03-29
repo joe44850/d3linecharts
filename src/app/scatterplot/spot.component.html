@@ -1,6 +1,6 @@
 <div class="div-centered">
     <scatterplot
-        [width]="500"
+        [width]="800"
         [height]="400"
         [yLabel]="yLabel"
         [yMin]=yMinimum
@@ -9,7 +9,8 @@
         [xMin]="xMinimum"
         [xMax]="xMaximum"
         [colorScheme] = "['#8B0000', '#3399FF', '#FFA500', '#BBBBBB', '#3399FF', '#990033', '#006600', '#0066CC', '#FFCC33']"  
-        [dataKey]="dataKey"      
+        [dataKey]="dataKey" 
+        [fillChart]="fillChart"     
     ></scatterplot>
 
     <div>
@@ -19,5 +20,11 @@
         X label: <input type="text" class="input-medium" [(ngModel)]="xLabel">
         XAxis Range: <input type="text" [(ngModel)]="xMinimum" class="input-narrow"> to <input type="text" [(ngModel)]="xMaximum" class="input-narrow">
     </div>
+
+    <div>
+        Fill Chart <input type="checkbox" [(ngModel)]="fillChart">
+    </div>
 </div>
+
+
 
