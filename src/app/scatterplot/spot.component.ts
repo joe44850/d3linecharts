@@ -15,6 +15,7 @@ export class SpotComponent {
 @Input() public yLabel: string;
 @Input() public fillChart: boolean;
 @Input() public dataKey = "studentName";
+@Input() public setDimensionsToData = false;
 
     constructor(){
         

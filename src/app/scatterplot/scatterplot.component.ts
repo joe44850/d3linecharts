@@ -1,4 +1,5 @@
-import { Component, OnInit, OnChanges, ViewChild, ElementRef, Input, ViewEncapsulation, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnChanges, ViewChild, ElementRef, Input, Output, ViewEncapsulation, SimpleChanges, 
+  ChangeDetectionStrategy, EventEmitter } from '@angular/core';
 import * as d3 from 'd3';
 import {exampleData} from './example-data';
 
@@ -15,8 +16,26 @@ export class ScatterplotComponent implements OnInit, OnChanges {
   @Input() public data: Array<any> = [];
   @Input() public width: number;
   @Input() public height: number;
-  @Input() public xMin: number;
-  @Input() public xMax: number; 
+  @Input() public set xMin(value:number){
+    this._xMin = value;
+    this.updateDimensions();
+    this.createAxis();
+    this.updateGrid();
+    this.redrawLines();        
+    this.addFill();
+  };
+  private _xMin:number;
+
+  @Input() public set xMax(value:number){
+    this._xMax = value;
+    this.updateDimensions();
+    this.createAxis();
+    this.updateGrid();
+    this.redrawLines();        
+    this.addFill();
+  }
+  private _xMax:number;
+
   @Input() public xLabel: string;
   @Input() public yMin: number;
   @Input() public yMax: number;
@@ -25,6 +44,7 @@ export class ScatterplotComponent implements OnInit, OnChanges {
   @Input() public showLegend: boolean;
   @Input() public dataKey: string;
   @Input() public fillChart: boolean;
+  @Input() public setDimensionsToData: boolean;
 
   private margin: any = {top: 20, right: 10, bottom: 20, left: 20};
   private chart: any;
@@ -62,8 +82,8 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     this.data = exampleData;
     this.height = this.height || 500;   
     this.width = this.width || 500;
-    this.xMin = this.xMin || 0;
-    this.xMax = this.xMax || 100;
+    this._xMin = this._xMin || 0;
+    this._xMax = this._xMax || 100;
     this.yMin = this.yMin || 0;
     this.yMax = this.yMax || 100;
     this.showLegend = this.showLegend || true;
@@ -76,12 +96,11 @@ export class ScatterplotComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges){
     for(let key in changes){ 
-      console.log(key);     
-      if((key == "xMax" || key == "xMin" || key == "yMin" || key == "yMax") && this.svgXAxis && this.svgYAxis){
+     
+      if((key == "xMax" || key == "xMin" || key == "yMin" || key == "yMax" ) && this.svgXAxis && this.svgYAxis){
         this.createAxis();
         this.updateGrid();
-        this.redrawLines();
-        this.removeFills();
+        this.redrawLines();        
         this.addFill();        
       }
       else if(key == "xLabel" || key == "yLabel"){        
@@ -89,9 +108,35 @@ export class ScatterplotComponent implements OnInit, OnChanges {
       } 
       else if(key == "fillChart"){
         this.addFill();
-      }    
+      } 
+      else if(key == "setDimensionsToData" && this.svgXAxis && this.svgYAxis){
+        this.updateDimensions();
+        this.createAxis();
+        this.updateGrid();
+        this.redrawLines();        
+        this.addFill();
+      }   
     }
-  }  
+  } 
+
+  updateDimensions(){
+    if(!this.setDimensionsToData){ return;}
+    let low;
+    let high;
+    let self = this;
+    let xMeasure = this.selectedItemData.map(function(a){ return a["year"];});
+    let xMeasures = [];
+    for(let i=0; i<xMeasure.length; i++){
+      xMeasures = xMeasures.concat(xMeasure[i]);
+    }    
+    xMeasures = xMeasures.filter((a)=>{ return a != undefined;})
+    low = xMeasures.sort()[0];
+    high = xMeasures[xMeasures.length-1];
+    this._xMin = low;
+    this._xMax = high;
+    //this.xMinChange.emit(low);
+    //this.xMaxChange.emit(high);
+  } 
 
   updateLabels(){
     if(this.svgXLabel){
@@ -131,11 +176,11 @@ export class ScatterplotComponent implements OnInit, OnChanges {
       .append("g")
       .attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")");
     this.createAxis();            
-  } 
+  }
 
   createAxis(){
     let self = this;
-    this.xScale = d3.scaleLinear().range([self.margin.left, self.width - self.margin.right - self.margin.right]).domain([self.xMin, self.xMax]);
+    this.xScale = d3.scaleLinear().range([self.margin.left, self.width - self.margin.right - self.margin.right]).domain([self._xMin, self._xMax]);
     this.yScale = d3.scaleLinear().range([self.height - self.margin.top - self.margin.bottom, 0]).domain([self.yMin, self.yMax]);
     //chart plot area
     let xAxis = d3.axisBottom(this.xScale);
@@ -174,6 +219,8 @@ export class ScatterplotComponent implements OnInit, OnChanges {
       }
       i++;
     }
+    //this.fillChart = false;
+    this.removeFills();
   } 
 
   removeDots(itemId){
@@ -184,7 +231,8 @@ export class ScatterplotComponent implements OnInit, OnChanges {
   updateChart(){
     this.removeDataPoints();     
     if(!this.selectedItemData){ return; }    
-    this.updateLineChart();               
+    this.updateLineChart();
+    this.addFill();               
   }  
 
   updateLineChart(){
@@ -239,25 +287,29 @@ export class ScatterplotComponent implements OnInit, OnChanges {
     });
   } 
 
-  addFill(){
-    if(this.fillChart){      
+  addFill(){    
+    if(this.fillChart){         
       var self = this;
       if(!this.dataGroup){ return; }
       var areaFunction = d3.area()      
         .x(function(d) { return self.xScale(d["year"]); })
         .y0(self.height)
-        .y1(function(d) { return self.yScale(self.getAverageScore(d)); });          
+        .y1(function(d) { return self.yScale(self.getAverageScore(d)); });
+
+      var t = self.svg.transition()
+          .duration(500)
+          .ease(d3.easeLinear);           
 
       this.dataGroup.forEach(function(d, i) { 
         let inArray = (d.key in self.filledAreas);           
-        if(!inArray){        
+        if(!inArray){                  
           let color = self.assignedColors[d.key];
           let gradientId = "linearGradient"+i;
-          var areaGradient =self.svg.append("defs")
+          var areaGradient =self.svg.append("defs")          
           .append("linearGradient")
           .attr("id",`${gradientId}`)
           .attr("x1", "0%").attr("y1", "0%")
-          .attr("x2", "0%").attr("y2", "100%");        
+          .attr("x2", "0%").attr("y2", "100%");                   
           areaGradient.append("stop")         
           .attr("offset", "0%")          
           .attr("stop-color", `${color}`)
@@ -266,27 +318,29 @@ export class ScatterplotComponent implements OnInit, OnChanges {
           .attr("offset", "100%")          
           .attr("stop-color", "white")
           .attr("stop-opacity", 0);        
-          self.svg.append("path")
+          var area = self.svg.append("path")
           .style("fill", `url(#${gradientId})`)
-          .attr("d", areaFunction(d.values));          
+          .attr("id", `${gradientId}-fill`)
+          .attr("d", areaFunction(d.values));              
           self.filledAreas[d.key] = gradientId;
         }
       });      
     } 
-    else{
+    else{      
       this.removeFills();
     }   
   }
 
   removeFills(){
     let i = 0;
-    try{
+    try{      
       for(let key in this.filledAreas){
         let item = this.filledAreas[key];
-        this.svg.select(`#${item}`).selectAll("*").remove();        
-      }
-      this.filledAreas = [];
-      
+        this.svg.selectAll(`#${item}`).remove();
+        this.svg.selectAll(`#${item}-fill`).remove();
+      }  
+      this.filledAreas.length = 0;
+      this.filledAreas = [];             
     }  
     catch(e){
       console.log(e);
@@ -340,8 +394,8 @@ export class ScatterplotComponent implements OnInit, OnChanges {
       let height = this.height;      
       let xAxis = this.xAxis;
       let yAxis = this.yAxis;  
-      let xMin = this.xMin;
-      let xMax = this.xMax;
+      let xMin = this._xMin;
+      let xMax = this._xMax;
       let yMin = this.yMin;
       let yMax = this.yMax;    
       var color = this.assignedColors[d.key];

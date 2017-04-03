@@ -1,16 +1,16 @@
 <div class="div-centered">
-    <scatterplot
+    <scatterplot #scatterPlot 
         [width]="800"
         [height]="400"
         [yLabel]="yLabel"
         [yMin]=yMinimum
         [yMax]=yMaximum
-        [xLabel]="xLabel"
-        [xMin]="xMinimum"
-        [xMax]="xMaximum"
+        [xLabel]="xLabel"        
         [colorScheme] = "['#8B0000', '#3399FF', '#FFA500', '#BBBBBB', '#3399FF', '#990033', '#006600', '#0066CC', '#FFCC33']"  
         [dataKey]="dataKey" 
-        [fillChart]="fillChart"     
+        [fillChart]="fillChart" 
+        [setDimensionsToData]="setDimensionsToData"
+           
     ></scatterplot>
 
     <div>
@@ -18,11 +18,16 @@
         YAxis Range: <input type="text" [(ngModel)]="yMinimum" class="input-narrow"> to <input type="text" [(ngModel)]="yMaximum" class="input-narrow">
 
         X label: <input type="text" class="input-medium" [(ngModel)]="xLabel">
-        XAxis Range: <input type="text" [(ngModel)]="xMinimum" class="input-narrow"> to <input type="text" [(ngModel)]="xMaximum" class="input-narrow">
+        XAxis Range: 
+        <input type="text" [ngModel]="scatterPlot.xMin" class="input-narrow"  (ngModelChange)="scatterPlot.xMin=$event"> to 
+        <input type="text" [ngModel]="scatterPlot.xMax" (ngModelChange)="scatterPlot.xMax=$event" class="input-narrow">
+
+        Set width to data distribution <input type="checkbox" [(ngModel)]="setDimensionsToData" />
     </div>
 
     <div>
         Fill Chart <input type="checkbox" [(ngModel)]="fillChart">
+
     </div>
 </div>
 
